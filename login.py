@@ -31,8 +31,13 @@ DATA = DATA.encode(encoding='utf-8')
 class HTTPRedirectHandler(urllib.request.HTTPRedirectHandler):
     def http_error_302(self, req, fp, code, msg, headers):
         print("Redirect is called but I get it")
-
-
+        print("msg:", msg)
+       # print("fp:", fp.read())
+       # print("headers type:", type(headers))
+       # print("headers:", headers)
+        param = headers.get("Set-Cookie")
+       
+        print("param:", param)
 url = urllib.request.Request(url=LoginPage,data=DATA,headers=header_dic,method='POST')
 '''
 try :
@@ -55,7 +60,7 @@ try:
     web = opener.open(url)
 except HTTPError as e:
     print(e)
-    
+'''    
 print("headers:")
 print("return code is", web.code)
 print(web.info())
@@ -64,3 +69,4 @@ print("cookie:")
 cook = cj.make_cookies(web, url)
 for item in cook:
     print(item)
+'''
