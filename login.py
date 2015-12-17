@@ -32,12 +32,9 @@ class HTTPRedirectHandler(urllib.request.HTTPRedirectHandler):
     def http_error_302(self, req, fp, code, msg, headers):
         print("Redirect is called but I get it")
         print("msg:", msg)
-       # print("fp:", fp.read())
-       # print("headers type:", type(headers))
-       # print("headers:", headers)
         param = headers.get("Set-Cookie")
        
-        print("param:", param)
+        print("param:", param[0], param[1])
 url = urllib.request.Request(url=LoginPage,data=DATA,headers=header_dic,method='POST')
 '''
 try :
