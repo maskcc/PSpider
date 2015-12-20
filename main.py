@@ -122,7 +122,4 @@ class login(object):
         self.__cookie += '; module_orders_mypage=' + cookieObj['module_orders_mypage']
     @property
     def cookie(self):
-        return self.__cookie
-    
-GetCookie = login("pickmio", "jxp2580")
-print('finally cookie is：', GetCookie.cookie)
+        return self.__cookie   
