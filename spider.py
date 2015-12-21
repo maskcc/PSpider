@@ -23,10 +23,23 @@ class User(object):
 
     
 def parseUser(info):
+#    print(info)
     pattern = re.compile('(?<=member.php\?id=)\d+')
     match = pattern.search(info)
-    print (match.group())
-        
+    ID =  match.group()
+    pattern = re.compile('http://.+(?="\s)')
+    match = pattern.search(info)
+    imgSrc = match.group()
+#    print(imgSrc)
+    pattern = re.compile('(?<=data-user_name=")\w+')
+    match = pattern.search(info)
+    name = match.group()
+    print(name)
+    pattern = re.compile('(?<=</a>).+$')
+    match = pattern.search(info)
+    des = match.group()
+    print(des)
+
 
 Login = login.login('pickmio', 'jxp2580')
 header = login.HttpHeadBuilder().mockHeader
