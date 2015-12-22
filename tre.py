@@ -5,7 +5,9 @@ import re
 #co = re.compile(r'<a href="member.php\?id=\d+" class="ui-profile-popup" data-user_id="\d+" data-profile_img=.*?<br><span>')
 #match = co.findall(doc)
 
-data = 'asdf:http://www.baidu.com.jpg'
-co = re.compile('http://.+.jpg')
+data = 'asdf:http://www.baidu.com.jpg v2ex'
+#co = re.compile(r'(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))')
+
+co = re.compile(r'(([\w-]+://?|www[.]))[^\s()<>]+(?:([\w\d]+))')
 match = co.search(data)
 print (match)

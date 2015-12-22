@@ -7,7 +7,7 @@ class User(object):
     def __init__(self, ID, descript, imgSrc):
         self.__ID = ID
         self.__des = descript
-        self.imgSrc = imgSrc
+        self.__imgSrc = imgSrc
 
     @property
     def ID(self):
@@ -21,25 +21,27 @@ class User(object):
     def imgSrc(self):
         return self.__imgSrc
 
+    def show(self):
+        print('ID:', self.__ID)
+        print('imgSrc:', self.__imgSrc)
+        print('descript:', self.__des)
+        print('\n')
+
     
 def parseUser(info):
-#    print(info)
-    pattern = re.compile('(?<=member.php\?id=)\d+')
+    pattern = re.compile(r'(?<=member.php\?id=)\d+')
     match = pattern.search(info)
     ID =  match.group()
-    pattern = re.compile('http://.+(?="\s)')
+    pattern = re.compile(r'(([\w-]+://?|www[.]))[^\s()<>]+(?:([\w\d]+))')
     match = pattern.search(info)
     imgSrc = match.group()
-#    print(imgSrc)
-    pattern = re.compile('(?<=data-user_name=")\w+')
+    pattern = re.compile(r'(?<=data-user_name=").+(?=">)')
     match = pattern.search(info)
     name = match.group()
-    print(name)
-    pattern = re.compile('(?<=</a>).+$')
+    pattern = re.compile(r'(?<=</a>).+$')
     match = pattern.search(info)
     des = match.group()
-    print(des)
-
+    return User(ID, des, imgSrc)
 
 Login = login.login('pickmio', 'jxp2580')
 header = login.HttpHeadBuilder().mockHeader
@@ -53,9 +55,12 @@ htmlPage = htmlPage.decode('utf-8')
 with open('htmlPage.html', 'w') as f:
     f.write(htmlPage)
 #pattern = re.compile(r'(?<=<ul class="user-list"><li><a href="/member.php\?id=)\d+')
-pattern = re.compile(r'<a href="member.php\?id=\d+" class="ui-profile-popup" data-user_id="\d+" data-profile_img=.*?<br><span>')
+pattern = re.compile(r'<div class="userdata"><a href="member.php\?id=\d+" class="ui-profile-popup" data-user_id="\d+" data-profile_img=.*?(?=<br><span>)')
 match = pattern.findall(htmlPage)
-
+users = []
 if match:
     for keys in match:
-        parseUser(keys) 
+        users.append(parseUser(keys))
+
+for v in users:
+    v.show()
