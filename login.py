@@ -34,12 +34,17 @@ class HTTPRedirectHandler(urllib.request.HTTPRedirectHandler):
 class HttpHeadBuilder(object):
     def __init__(self):
         self.__mockHeader = {}
+        self.__arrHeader = []
         self.initHeader()
 
     @property
     def mockHeader(self):
         return self.__mockHeader
     
+    @property
+    def arrHeader(self):
+        return self.__arrHeader
+
     def initHeader(self):
         self.__mockHeader = {
             "ContentType" : "application/x-www-form-urlencoded",\
@@ -53,6 +58,15 @@ class HttpHeadBuilder(object):
             "Cache-Control" : "max-age=0",\
             "DNT" : "1"  
         }
+        self.__arrHeader = [("ContentType", "application/x-www-form-urlencoded"),
+                            ("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0"),
+                            ("Referer", "https://www.secure.pixiv.net/login.php"),
+                            ("Accept", "test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+                            ("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"),
+                            ("Connection", "keep-alive"),
+                            ("Cache-Control", "max-age=0"),
+                            ("DNT", "1")
+       ]
 
 class HttpPostDataBuilder(object):
     def __init__(self, postData):
@@ -78,7 +92,7 @@ class login(object):
 
         
         try:
-            with open('cookie', 'r') as cookieFile:
+            with open(userName, 'r') as cookieFile:
                 self.__cookie = cookieFile.read()
         except IOError as e:
             print('can not find the cookie file, just login')
@@ -128,7 +142,7 @@ class login(object):
         self.__cookie += '; module_orders_mypage=' + cookieObj['module_orders_mypage']
 
     def saveCookie(self):
-        cookieFile = open('cookie', 'w')
+        cookieFile = open(self.__userName, 'w')
         cookieFile.write(self.__cookie)
         cookieFile.close()
 
