@@ -2,6 +2,7 @@ import urllib.request
 import urllib.parse
 import login
 import re
+import DBInstance as DB
 
 class User(object):
     def __init__(self, ID, description, imgSrc):
@@ -56,6 +57,8 @@ class UserParse(object):
         self.__urlPages = []
         self.set_page_urls()
         self.parse_all_pages()
+        self._db = DB.DBInstance()
+        self.add_2_db()
 
     def set_page_urls(self):
         self.__firstPage = self.opener.open(self.__firstUrl).read()
@@ -90,6 +93,10 @@ class UserParse(object):
         if match:
             for v in match:
                 self.__Users.append(parseUser(v))
+    def add_2_db(self):
+        for v in self.__Users:
+            if self.__Users:
+                self._db.add_author(v.ID, v.des, v.imgSrc)
 
     def show(self):
         print('total:', len(self.__Users))
@@ -106,5 +113,31 @@ class UserParse(object):
                     imgfile = open(r'./file/' + s.ID + '.' + s.imgSrc.split('.')[-1], 'wb+')
                     imgfile.write(img)
             v.show()
+'''
+class ImagePraser(obejct):
+    def __init__(self):
+'''     
 
-UserParse(login.login('pickmio', 'jxp2580').cookie).show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

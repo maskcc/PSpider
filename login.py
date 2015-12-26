@@ -1,10 +1,11 @@
 # -*- coding:utf-8 -*-
 #! /usr/bin/python3
-
+# I still need to add a function to try if the cookie is out of date!
 import urllib.request
 import urllib.parse
 from urllib.error import HTTPError, URLError
 import http.cookiejar
+import DBInstance as DB
 
 def parseCookie(values):
     #print(values)
@@ -90,26 +91,26 @@ class login(object):
             if(str != type(pwd)):
                 raise ValueError("pwd must be a str")
 
+        self._DB = DB.DBInstance()
+        self.__userName = userName
+        self.__pwd = pwd
+        self.__cookie = ''
+        cookie = self._DB.get_cookie(userName, pwd)
+        if cookie:
+            print('You have cached the cookie!')
+            self.__cookie = cookie
+            return    
+
+        self._DB.add_user(userName, pwd)
+        t = HttpHeadBuilder()
+        self.__mockHeader = t.mockHeader
+        self.__postData = {}
         
-        try:
-            with open(userName, 'r') as cookieFile:
-                self.__cookie = cookieFile.read()
-        except IOError as e:
-            print('can not find the cookie file, just login')
-            self.__userName = userName
-            self.__pwd = pwd
-            self.__cookie = ""  #the cookie server returned
+        self.initPostData()
+        self.__loginPage = loginPage
 
-
-            t = HttpHeadBuilder()
-            self.__mockHeader = t.mockHeader
-            self.__postData = {}
-            self.initPostData()
-            self.__loginPage = loginPage
-
-            self.makeLogin()    
-            self.openMainPage()
-            self.saveCookie()
+        self.makeLogin()
+        self.saveCookie()
 
     def initPostData(self):
         self.__postData["mode"] = "login"
@@ -142,10 +143,32 @@ class login(object):
         self.__cookie += '; module_orders_mypage=' + cookieObj['module_orders_mypage']
 
     def saveCookie(self):
-        cookieFile = open(self.__userName, 'w')
-        cookieFile.write(self.__cookie)
-        cookieFile.close()
+        # cookieFile = open(self.__userName, 'w')
+        # cookieFile.write(self.__cookie)
+        # cookieFile.close()
+        self._DB.update_cookie(self.__userName, self.__cookie)
 
     @property
     def cookie(self):
         return self.__cookie   
+'''
+        try:
+            with open(userName, 'r') as cookieFile:
+                self.__cookie = cookieFile.read()
+        except IOError as e:
+            print('can not find the cookie file, just login')
+            self.__userName = userName
+            self.__pwd = pwd
+            self.__cookie = ""  #the cookie server returned
+
+
+            t = HttpHeadBuilder()
+            self.__mockHeader = t.mockHeader
+            self.__postData = {}
+            self.initPostData()
+            self.__loginPage = loginPage
+
+            self.makeLogin()    
+            self.openMainPage()
+            self.saveCookie()
+'''
