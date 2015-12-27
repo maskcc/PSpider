@@ -31,6 +31,15 @@ class DBInstance(object):
         except pymongo.errors.DuplicateKeyError:
             print(name, ' you hava logined in our system!')
 
+    # the user id is needed to transfer to string, number in db are stored in float whith a '0' end
+    def add_my_drawer(self, name, IDList):
+        my = self._users.find_one({'name': name})
+        if not my:
+            print('add my drawer fail, name is wrong!')
+            return False
+        self._users.update({'name': name}, {'$set': {'IDList': IDList}})
+        # here may have memory leak???
+        
     def get_cookie(self, name, pwd):
         user = self._users.find_one({'name': name, 'pwd' : pwd})
         cookie = ''

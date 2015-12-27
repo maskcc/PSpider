@@ -3,6 +3,10 @@ import urllib.parse
 import login
 import re
 import DBInstance as DB
+import requests
+
+AuthorPage = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id='
+MangaPage = 'http://www.pixiv.net/member_illust.php?mode=manga&illust_id='
 
 class User(object):
     def __init__(self, ID, description, imgSrc):
@@ -45,12 +49,13 @@ def parseUser(info):
     return User(ID, des, imgSrc)
 
 class UserParse(object):
-    def __init__(self, cookie):
+    def __init__(self, name, cookie):
         self.__cookie = cookie
         self.__Users = []
         self.opener = {}
         self.set_opener()
-        
+        self._name = name
+
         self.__maxCount = 0
         self.__firstUrl = 'http://www.pixiv.net/bookmark.php?type=user'
         self.__firstPage = ''
@@ -60,6 +65,7 @@ class UserParse(object):
         self._db = DB.DBInstance()
         self.add_2_db()
 
+    # I can only get 10 pages on the main page, perhaps I need to try until the code is not 200
     def set_page_urls(self):
         self.__firstPage = self.opener.open(self.__firstUrl).read()
         self.__firstPage = self.decode_page(self.__firstPage)
@@ -94,9 +100,12 @@ class UserParse(object):
             for v in match:
                 self.__Users.append(parseUser(v))
     def add_2_db(self):
+        ids = []
         for v in self.__Users:
             if self.__Users:
                 self._db.add_author(v.ID, v.des, v.imgSrc)
+                ids.append(v.ID)
+        self._db.add_my_drawer(self._name, ids)
 
     def show(self):
         print('total:', len(self.__Users))
@@ -113,17 +122,32 @@ class UserParse(object):
                     imgfile = open(r'./file/' + s.ID + '.' + s.imgSrc.split('.')[-1], 'wb+')
                     imgfile.write(img)
             v.show()
-'''
-class ImagePraser(obejct):
-    def __init__(self):
-'''     
+class ImagePraser(object):
+    def __init__(self, userName, pwd):
+        self._DB = DB.DBInstance()
+        self._userName = userName
+        self._pwd = pwd
+        self._cookie = self.DB.get_cookie(userName, pwd)
+        if not self._cookie:
+            print('please parse image after login!')
+            return
+        self.opener = {}
+        self.set_opener()
+
+    def set_opener(self):        
+        self.opener = urllib.request.build_opener()    
+        self.opener.addheaders = login.HttpHeadBuilder().arrHeader
+        self.opener = urllib.request.build_opener()    
+
+    def parse_image_id(self, userID):
+#        rst = self._DB.
+         pass       
+                
 
 
 
 
-
-
-
+UserParse('pickmio', login.login('pickmio', 'jxp2580').cookie)
 
 
 
