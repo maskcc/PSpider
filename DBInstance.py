@@ -11,9 +11,9 @@ class DBInstance(object):
         self._authors.create_index([('ID', pymongo.ASCENDING)], unique=True)
         self._users.create_index([('name', pymongo.ASCENDING)], unique=True)
 
-    def add_author(self, ID, des, imgSrc):
+    def add_author(self, ID, name, des, imgSrc):
         try:
-            self._authors.insert({'ID': ID, 'des': des, 'imgSrc': imgSrc})
+            self._authors.insert({'ID': ID, 'name': name, 'des': des, 'imgSrc': imgSrc})
         except pymongo.errors.DuplicateKeyError:
             print(ID, ' is already on the db')
 
@@ -22,7 +22,7 @@ class DBInstance(object):
         if not rst:
             print('the user\'s ID is not in the db')
             return None
-        return rst.ID, rst.des, rst.imgSrc       
+        return rst.ID, rst.name, rst.des, rst.imgSrc       
     # name: the user name he login, pwd: the password, cookie: tmp cookie get, alist: the users he followed with intrest
 
     def add_user(self, name, pwd):
@@ -39,6 +39,14 @@ class DBInstance(object):
             return False
         self._users.update({'name': name}, {'$set': {'IDList': IDList}})
         # here may have memory leak???
+
+    def get_my_drawer(self, name):
+        my = self._users.find_one({'name': name})
+        if not my:
+            print('can not find user:', name)
+            return False
+        return (my['IDList'])
+ 
         
     def get_cookie(self, name, pwd):
         user = self._users.find_one({'name': name, 'pwd' : pwd})

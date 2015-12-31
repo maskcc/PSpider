@@ -4,13 +4,19 @@ import login
 import re
 import DBInstance as DB
 import requests
-
+# I have to add exception to the operation of openning one page!
+# And also have to set the frequency to open one page! so that it can not catch me
+# I also have to add the judgement that when is timeout , drop the web access
+# Need to change the cookie when it does not work
+# Need to update the database when a special time passed!
+MainPage = 'http://www.pixiv.net/member_illust.php?id='
 AuthorPage = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id='
 MangaPage = 'http://www.pixiv.net/member_illust.php?mode=manga&illust_id='
 
 class User(object):
-    def __init__(self, ID, description, imgSrc):
+    def __init__(self, ID, name,  description, imgSrc):
         self.__ID = ID
+        self.__name = name
         self.__des = description
         self.__imgSrc = imgSrc
 
@@ -26,8 +32,13 @@ class User(object):
     def imgSrc(self):
         return self.__imgSrc
 
+    @property
+    def name(self):
+        return self.__name
+
     def show(self):
         print('ID:', self.__ID)
+        print('name', self.__name)
         print('imgSrc:', self.__imgSrc)
         print('descript:', self.__des)
         print('\n')
@@ -46,7 +57,7 @@ def parseUser(info):
     pattern = re.compile(r'(?<=</a>).+$')
     match = pattern.search(info)
     des = match.group()
-    return User(ID, des, imgSrc)
+    return User(ID, name, des, imgSrc)
 
 class UserParse(object):
     def __init__(self, name, cookie):
@@ -103,7 +114,7 @@ class UserParse(object):
         ids = []
         for v in self.__Users:
             if self.__Users:
-                self._db.add_author(v.ID, v.des, v.imgSrc)
+                self._db.add_author(v.ID, v.name, v.des, v.imgSrc)
                 ids.append(v.ID)
         self._db.add_my_drawer(self._name, ids)
 
@@ -127,7 +138,7 @@ class ImagePraser(object):
         self._DB = DB.DBInstance()
         self._userName = userName
         self._pwd = pwd
-        self._cookie = self.DB.get_cookie(userName, pwd)
+        self._cookie = self._DB.get_cookie(userName, pwd)
         if not self._cookie:
             print('please parse image after login!')
             return
@@ -139,16 +150,23 @@ class ImagePraser(object):
         self.opener.addheaders = login.HttpHeadBuilder().arrHeader
         self.opener = urllib.request.build_opener()    
 
-    def parse_image_id(self, userID):
-#        rst = self._DB.
-         pass       
+    def parse_image_id(self):
+         data = self._DB.get_my_drawer(self._userName)
+         for v in data:
+             for i in range(1000):
+                 url = MainPage + str(v) + '&type=all&p=' + str(i)
+                 print('authorPage is:',  url)
+                 rst =  self.opener.open(url)
+                 print('return code is:', rst.code)
+
                 
 
 
 
 
 UserParse('pickmio', login.login('pickmio', 'jxp2580').cookie)
-
+#p = ImagePraser('pickmio', 'jxp2580')
+#p.parse_image_id()
 
 
 
