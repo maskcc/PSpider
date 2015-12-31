@@ -10,7 +10,7 @@ import requests
 # Need to change the cookie when it does not work
 # Need to update the database when a special time passed!
 MainPage = 'http://www.pixiv.net/member_illust.php?id='
-AuthorPage = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id='
+ImgPage = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id='
 MangaPage = 'http://www.pixiv.net/member_illust.php?mode=manga&illust_id='
 
 class User(object):
@@ -139,6 +139,7 @@ class ImagePraser(object):
         self._userName = userName
         self._pwd = pwd
         self._cookie = self._DB.get_cookie(userName, pwd)
+        print('cookie:', self._cookie)
         if not self._cookie:
             print('please parse image after login!')
             return
@@ -146,27 +147,59 @@ class ImagePraser(object):
         self.set_opener()
 
     def set_opener(self):        
+        urllib.request.socket.setdefaulttimeout(10)
         self.opener = urllib.request.build_opener()    
         self.opener.addheaders = login.HttpHeadBuilder().arrHeader
-        self.opener = urllib.request.build_opener()    
+        self.opener.addheaders.append(('Cookie', self._cookie))
+
+    def hasNext(self, page): # to judge if there is next page
+        pattern = re.compile('下一页')  
+        match = pattern.search(page)
+        if match:
+            return True
+        return False
 
     def parse_image_id(self):
          data = self._DB.get_my_drawer(self._userName)
          for v in data:
              for i in range(1000):
-                 url = MainPage + str(v) + '&type=all&p=' + str(i)
+                 url = MainPage + str(v) + '&type=all&p=' + str(i + 1)
                  print('authorPage is:',  url)
                  rst =  self.opener.open(url)
                  print('return code is:', rst.code)
+                 rst = rst.read()
+                 rst = rst.decode('utf-8')
+                 if not self.hasNext(rst):
+                     print('can not find any more')
+                     break
+                 self.parse_image_url(rst)
 
-                
+    def parse_image_url(self, page):
+        pattern = re.compile('(?<=a href="/member_illust.php\?mode=medium&amp;illust_id=)\d+')
+        match = pattern.findall(page)
+        i = 1
+        if not match:
+            print('match nothing')
+            return
+        for v in match:
+               page = self.opener.open(ImgPage + str(v))
+               page = page.read()
+               page = page.decode('utf-8')
+               pattern = re.compile('(?<=data-src=").* (?=class="original-image")') 
+               imgurl = pattern.search(page).group()
+               print(str(i) + '.downloading url:', imgurl)
+               img = self.opener.open(imgurl).read()
+               with open((str(v) + '.' + imgurl.split('.')[-1]), 'wb') as f:
+                   f.write(img)
+                   f.close()
+               
 
 
 
 
-UserParse('pickmio', login.login('pickmio', 'jxp2580').cookie)
-#p = ImagePraser('pickmio', 'jxp2580')
-#p.parse_image_id()
+#UserParse('pickmio', login.login('pickmio', 'jxp2580').cookie)
+p = ImagePraser('pickmio', 'jxp2580')
+p.parse_image_id()
 
 
 

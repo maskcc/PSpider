@@ -50,7 +50,7 @@ class HttpHeadBuilder(object):
         self.__mockHeader = {
             "ContentType" : "application/x-www-form-urlencoded",\
             "User-Agent" : "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0",\
-            "Referer" : "https://www.secure.pixiv.net/login.php",\
+            "Referer" : "http://www.pixiv.net/member_illust.php?mode=medium&illust_id=54345250",\
             "Accept" : "test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",\
             "Accept-Language" : "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",\
             # "Accept-Encoding" : "gzip, deflate",\    #is open this header, the server will compress the package
