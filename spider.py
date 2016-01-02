@@ -80,10 +80,11 @@ class UserParse(object):
     def set_page_urls(self):
         self.__firstPage = self.opener.open(self.__firstUrl).read()
         self.__firstPage = self.decode_page(self.__firstPage)
-        pattern = re.compile(r'(?<=<a href="bookmark.php\?type=user&amp;rest=show&amp;p=)\d+')
-        rsp = pattern.findall(self.__firstPage)
-        rsp = [int(x) for x in rsp if x]
-        self.__maxCount = max(rsp)
+#        pattern = re.compile(r'(?<=<a href="bookmark.php\?type=user&amp;rest=show&amp;p=)\d+')
+#        rsp = pattern.findall(self.__firstPage)
+#        rsp = [int(x) for x in rsp if x]
+#        self.__maxCount = max(rsp)
+        self.__maxCount = 12 # here need to change when you are running
         for i in range(self.__maxCount):
             url = 'http://www.pixiv.net/bookmark.php?type=user&rest=show&p=' + str(i+1)
             self.__urlPages.append(url) 
@@ -194,7 +195,7 @@ class ImagePraser(object):
                print(str(i) + '.downloading url:', imgurl)
                self.opener.addheaders.append(('Referer', sourceUrl))  # add reference ,with out this will return 404
                img = self.opener.open(imgurl).read()
-
+               i = i + 1 
                self.opener.addheaders.pop() # push the last Reffering and replace it 
                with open((str(v) + '.' + imgurl.split('.')[-1]), 'wb') as f:
                    f.write(img)
@@ -204,7 +205,7 @@ class ImagePraser(object):
 
 
 
-#UserParse('pickmio', login.login('pickmio', 'jxp2580').cookie)
+UserParse('pickmio', login.login('pickmio', 'jxp2580').cookie)
 p = ImagePraser('pickmio', 'jxp2580')
 p.parse_image_id()
 
