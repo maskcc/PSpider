@@ -182,13 +182,20 @@ class ImagePraser(object):
             print('match nothing')
             return
         for v in match:
-               page = self.opener.open(ImgPage + str(v))
+               sourceUrl = ImgPage + str(v)
+               page = self.opener.open(sourceUrl)
                page = page.read()
                page = page.decode('utf-8')
+               f =  open('data.html', 'w')
+               f.write(page)
                pattern = re.compile('(?<=data-src=").* (?=class="original-image")') 
                imgurl = pattern.search(page).group()
+               imgurl = imgurl.split('"')[0]
                print(str(i) + '.downloading url:', imgurl)
+               self.opener.addheaders.append(('Referer', sourceUrl))  # add reference ,with out this will return 404
                img = self.opener.open(imgurl).read()
+
+               self.opener.addheaders.pop() # push the last Reffering and replace it 
                with open((str(v) + '.' + imgurl.split('.')[-1]), 'wb') as f:
                    f.write(img)
                    f.close()
